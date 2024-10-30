@@ -9,6 +9,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 
 
+
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -37,4 +39,35 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
     queryset = MovimientoStock.objects.all()
     serializer_class = MovimientoStockSerializer
 
-    
+def cargar_productos():
+    productos = [
+        {
+            'nombre': 'Producto 1',
+            'descripcion': 'Descripción 1',
+            'cantidad_disponible': 10,
+            'stock': 50,  
+            'precio': 100.00
+        },
+        {
+            'nombre': 'Producto 2',
+            'descripcion': 'Descripción 2',
+            'cantidad_disponible': 20,
+            'stock': 100, 
+            'precio': 200.00
+        },
+        
+    ]
+
+    for p in productos:
+        Product.objects.create(**p)
+
+from rest_framework.decorators import api_view
+
+@api_view(['GET'])
+def obtener_datos(_):
+    data = {"message": "Datos desde Django Rest Framework"}
+    return Response(data)
+
+
+
+

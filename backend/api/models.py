@@ -7,7 +7,6 @@ class Product(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     cantidad_disponible = models.IntegerField()
     stock = models.IntegerField()
-    categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE)
     objects = models.Manager()
 
 

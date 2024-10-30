@@ -29,3 +29,4 @@ class MovimientoStockSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("No hay suficiente stock disponible.")
         
         return attrs
+    
