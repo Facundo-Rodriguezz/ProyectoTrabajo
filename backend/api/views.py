@@ -8,9 +8,6 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 
-
-
-
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -23,10 +20,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_permissions(self):
-        if self.action in ['create', 'update', 'destroy']:
-            self.permission_classes = [IsAdminUser]
-            return [IsAdminUser()]
+        if self.action in ['crear', 'actualizar', 'destruir']:
+            self.permission_classes = [IsAdminUser]  # Solo admin puede crear, actualizar o destruir
+        else:
+            self.permission_classes = [IsAuthenticated]  # Para las otras acciones, solo autenticados
         return super().get_permissions()
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
