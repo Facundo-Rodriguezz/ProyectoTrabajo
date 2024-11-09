@@ -7,7 +7,7 @@ class Product(models.Model):
     stock = models.IntegerField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     categoria = models.CharField(max_length=100, null=True)
-    descripcion = models.TextField(null=True)  # Ahora es opcional
+    descripcion = models.TextField(null=True)
     
 
 
