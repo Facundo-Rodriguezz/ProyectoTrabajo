@@ -1,17 +1,19 @@
 from django.db import models
 
 
-class Product(models.Model):  
-    nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    cantidad_disponible = models.IntegerField()
+class Product(models.Model):
+    nombre = models.CharField(max_length=255)
+    sku = models.CharField(max_length=255, null=True, blank=True)
     stock = models.IntegerField()
-    objects = models.Manager()
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    categoria = models.CharField(max_length=100, null=True)
+    descripcion = models.TextField(null=True)  # Ahora es opcional
+    
 
 
     def __str__(self):
-        return str(self.nombre,self.cantidad_disponible)
+        return str(self.nombre)
+
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
