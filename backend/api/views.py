@@ -1,11 +1,14 @@
-from .models import Product
+from .models import Categoria, Product
 from .models import MovimientoStock
-from .serializers import ProductSerializer, UserSerializer, MovimientoStockSerializer
+from .serializers import CategorySerializer, ProductSerializer, UserSerializer, MovimientoStockSerializer
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
+from django.db.models import Count
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -27,7 +30,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
-
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -38,35 +40,22 @@ class MovimientoStockViewSet(viewsets.ModelViewSet):
     queryset = MovimientoStock.objects.all()
     serializer_class = MovimientoStockSerializer
 
-def cargar_productos():
-    productos = [
-        {
-            'nombre': 'Producto 1',
-            'descripcion': 'Descripción 1',
-            'cantidad_disponible': 10,
-            'stock': 50,  
-            'precio': 100.00
-        },
-        {
-            'nombre': 'Producto 2',
-            'descripcion': 'Descripción 2',
-            'cantidad_disponible': 20,
-            'stock': 100, 
-            'precio': 200.00
-        },
-        
-    ]
 
-    for p in productos:
-        Product.objects.create(**p)
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategorySerializer
 
-from rest_framework.decorators import api_view
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    def get_queryset(self):
+        enviar_cantidades = self.request.query_params.get('enviar_cantidades', None)
+        if enviar_cantidades:
+            return Categoria.objects.annotate(cantidad_productos=Count('productos'))
+        return super().get_queryset()
+
 
 @api_view(['GET'])
 def obtener_datos(_):
     data = {"message": "Datos desde Django Rest Framework"}
     return Response(data)
-
-
-
-

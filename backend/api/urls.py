@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import UserViewSet, MovimientoStockViewSet, ProductViewSet
+from .views import CategoryViewSet, UserViewSet, MovimientoStockViewSet, ProductViewSet
 
 from api.auth_views.JWTView import CustomTokenObtainPairView, CustomRefreshTokenView
 
@@ -11,6 +11,7 @@ router = routers.DefaultRouter()
 # Registrar los ViewSets
 router.register(r'users', UserViewSet)
 router.register(r'product', ProductViewSet, basename='product')
+router.register(r'category', CategoryViewSet, basename='category')
 router.register(r'movimientos-stock', MovimientoStockViewSet, basename='movimientos-stock')
 
 # Definir las URLs

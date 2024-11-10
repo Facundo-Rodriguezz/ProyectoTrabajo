@@ -1,7 +1,8 @@
-from .models import Product
+from .models import Categoria, Product
 from .models import MovimientoStock
 from django.contrib.auth.models import User
 from rest_framework import serializers
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -27,6 +28,20 @@ class MovimientoStockSerializer(serializers.ModelSerializer):
 
         if tipo_movimiento == 'salida' and producto.cantidad < cantidad:
             raise serializers.ValidationError("No hay suficiente stock disponible.")
-        
+
         return attrs
-    
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Categoria
+        fields = ['id', 'nombre']
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+
+        if hasattr(instance, 'cantidad_productos'):
+            ret['cantidad_productos'] = instance.cantidad_productos
+
+        return ret

@@ -8,6 +8,7 @@ class Product(models.Model):
     cantidad_disponible = models.IntegerField()
     stock = models.IntegerField()
     objects = models.Manager()
+    categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE, related_name='productos', default=1)
 
     def __str__(self):
         return str(self.nombre, self.cantidad_disponible)
@@ -18,7 +19,7 @@ class Categoria(models.Model):
 
     def __str__(self):
         return str(self.nombre)
-    
+
 
 class MovimientoStock(models.Model):
     TIPO_MOVIMIENTO_CHOICES = [
