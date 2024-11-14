@@ -1,0 +1,10 @@
+venv/
+*.pyc
+*.sqlite3
+node_modules/
+.python-version
+package-lock.json
+package.json
+.vscode/
+__pycache__/
+db.sqlite3
