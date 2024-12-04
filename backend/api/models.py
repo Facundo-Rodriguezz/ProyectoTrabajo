@@ -48,27 +48,8 @@ class MovimientoStock(models.Model):
     def __str__(self):
         return f"{self.tipo_movimiento} - {self.producto.nombre} - {self.cantidad}"
 
-    def save(self, *args, **kwargs):
-        # Lógica para actualizar el stock del producto
-        if self.tipo_movimiento == 'entrada':
-            self.producto.cantidad += self.cantidad
-        elif self.tipo_movimiento == 'salida':
-            if self.producto.cantidad >= self.cantidad:
-                self.producto.cantidad -= self.cantidad
-            else:
-                raise ValueError("No hay suficiente stock para esta salida.")
-
-        # Alerta de stock bajo
-        if self.producto.cantidad < 10:  # Umbral de alerta (por ejemplo, 10 unidades)
-            # Lógica para enviar notificación (correo, SMS, etc.)
-            print(f"Alerta: El stock de {self.producto.nombre} es bajo.")  # Aquí puedes implementar una notificación real
-
-        self.producto.save()  # Guardar la nueva cantidad en el producto
-        super().save(*args, **kwargs)
-
 
 # Signals
-
 @receiver(post_save, sender=Product)
 def product_post_save(sender, instance, **kwargs):
     # Crear un movimiento de stock de tipo 'entrada' cuando se crea un nuevo producto
@@ -89,16 +70,9 @@ def product_pre_save(sender, instance, **kwargs):
         if old_product.cantidad_disponible != instance.cantidad_disponible:
             MovimientoStock.objects.create(
                 producto=instance,
-                tipo_movimiento='entrada',
+                tipo_movimiento='modificacion',
                 cantidad=instance.cantidad_disponible - old_product.cantidad_disponible,
                 comentario='Actualización de cantidad disponible'
-            )
-        elif old_product.stock != instance.stock:
-            MovimientoStock.objects.create(
-                producto=instance,
-                tipo_movimiento='entrada',
-                cantidad=instance.cantidad_disponible,
-                comentario='Actualización de stock'
             )
         elif old_product.precio != instance.precio:
             MovimientoStock.objects.create(
@@ -120,13 +94,6 @@ def product_pre_save(sender, instance, **kwargs):
                 tipo_movimiento='modificacion',
                 cantidad=instance.cantidad_disponible,
                 comentario='Actualización de categoria'
-            )
-        elif old_product.descripcion != instance.descripcion:
-            MovimientoStock.objects.create(
-                producto=instance,
-                tipo_movimiento='modificacion',
-                cantidad=instance.cantidad_disponible,
-                comentario='Actualización de descripcion'
             )
         elif old_product.eliminado != instance.eliminado:
             MovimientoStock.objects.create(

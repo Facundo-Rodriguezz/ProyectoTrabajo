@@ -29,6 +29,10 @@ class ProductViewSet(viewsets.ModelViewSet):
             self.permission_classes = [IsAuthenticated]  # Para las otras acciones, solo autenticados
         return super().get_permissions()
 
+    def perform_destroy(self, instance):
+        instance.eliminado = True
+        instance.save()
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -37,7 +41,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class MovimientoStockViewSet(viewsets.ModelViewSet):
     # pylint: disable=no-member
-    queryset = MovimientoStock.objects.all()
+    queryset = MovimientoStock.objects.all().order_by('-fecha')
     serializer_class = MovimientoStockSerializer
 
 

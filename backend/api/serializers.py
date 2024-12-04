@@ -17,9 +17,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class MovimientoStockSerializer(serializers.ModelSerializer):
+    producto_nombre = serializers.CharField(source='producto.nombre', read_only=True)
+    producto_codigo = serializers.CharField(source='producto.codigo', read_only=True)
+
     class Meta:
         model = MovimientoStock
-        fields = ['producto', 'tipo_movimiento', 'cantidad', 'comentario']
+        fields = ['id', 'producto_nombre', 'producto_codigo', 'tipo_movimiento', 'cantidad', 'comentario', 'fecha']
 
     def validate(self, attrs):
         producto = attrs['producto']
