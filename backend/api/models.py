@@ -27,28 +27,28 @@ class MovimientoStock(models.Model):
 
     producto = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="movimientos")
     tipo_movimiento = models.CharField(max_length=10, choices=TIPO_MOVIMIENTO_CHOICES)
-    cantidad = models.PositiveIntegerField()
+    cantidad_disponible = models.PositiveIntegerField()
     fecha = models.DateTimeField(auto_now_add=True)  # Fecha del movimiento
     comentario = models.TextField(blank=True, null=True)  # Por qué se hizo el movimiento (opcional)
     #pylint: disable=no-member
 
     def __str__(self):
-        return f"{self.tipo_movimiento} - {self.producto.nombre} - {self.cantidad}"
+        return f"{self.tipo_movimiento} - {self.producto.nombre} - {self.cantidad_disponible}"
 
     def save(self, *args, **kwargs):
         # Lógica para actualizar el stock del producto
         if self.tipo_movimiento == 'entrada':
-            self.producto.cantidad += self.cantidad
+            self.producto.cantidad_disponible += self.cantidad_disponible
         elif self.tipo_movimiento == 'salida':
-            if self.producto.cantidad >= self.cantidad:
-                self.producto.cantidad -= self.cantidad
+            if self.producto.cantidad_disponible >= self.cantidad_disponible:
+                self.producto.cantidad_disponible -= self.cantidad_disponible
             else:
                 raise ValueError("No hay suficiente stock para esta salida.")
         
         # Alerta de stock bajo
-        if self.producto.cantidad < 10:  # Umbral de alerta (por ejemplo, 10 unidades)
+        if self.producto.cantidad_disponible < 10:  # Umbral de alerta (por ejemplo, 10 unidades)
             # Lógica para enviar notificación (correo, SMS, etc.)
             print(f"Alerta: El stock de {self.producto.nombre} es bajo.")  # Aquí puedes implementar una notificación real
         
-        self.producto.save()  # Guardar la nueva cantidad en el producto
+        self.producto.save()  # Guardar la nueva cantidad_disponible en el producto
         super().save(*args, **kwargs)
