@@ -2,6 +2,7 @@ from .models import Categoria, Product
 from .models import MovimientoStock
 from .serializers import CategorySerializer, ProductSerializer, UserSerializer, MovimientoStockSerializer
 from django.contrib.auth.models import User
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -40,9 +41,15 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class MovimientoStockViewSet(viewsets.ModelViewSet):
-    # pylint: disable=no-member
     queryset = MovimientoStock.objects.all().order_by('-fecha')
     serializer_class = MovimientoStockSerializer
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search', None)
+        if search:
+            search = search.strip()
+            return MovimientoStock.objects.filter(Q(producto__nombre__icontains=search) | Q(producto__codigo__icontains=search))
+        return super().get_queryset()
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
