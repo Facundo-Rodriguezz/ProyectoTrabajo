@@ -22,7 +22,7 @@ class MovimientoStockSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MovimientoStock
-        fields = ['id', 'producto_nombre', 'producto_codigo', 'tipo_movimiento', 'cantidad', 'comentario', 'fecha']
+        fields = ['id', 'producto_nombre', 'producto_codigo', 'tipo_movimiento', 'cantidad_disponible', 'comentario', 'fecha']
 
     def validate(self, attrs):
         producto = attrs['producto']

@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
 
 
 class Product(models.Model):
@@ -44,7 +46,7 @@ def product_post_save(sender, instance, **kwargs):
         MovimientoStock.objects.create(
             producto=instance,
             tipo_movimiento='entrada',
-            cantidad=instance.cantidad_disponible,
+            cantidad_disponible=instance.cantidad_disponible,
             comentario='Creación de nuevo producto'
         )
 
@@ -58,35 +60,35 @@ def product_pre_save(sender, instance, **kwargs):
             MovimientoStock.objects.create(
                 producto=instance,
                 tipo_movimiento='modificacion',
-                cantidad=instance.cantidad_disponible - old_product.cantidad_disponible,
+                cantidad_disponible=instance.cantidad_disponible - old_product.cantidad_disponible,
                 comentario='Actualización de cantidad disponible'
             )
         elif old_product.precio != instance.precio:
             MovimientoStock.objects.create(
                 producto=instance,
                 tipo_movimiento='modificacion',
-                cantidad=instance.cantidad_disponible,
+                cantidad_disponible=instance.cantidad_disponible,
                 comentario='Actualización de precio'
             )
         elif old_product.nombre != instance.nombre:
             MovimientoStock.objects.create(
                 producto=instance,
                 tipo_movimiento='modificacion',
-                cantidad=instance.cantidad_disponible,
+                cantidad_disponible=instance.cantidad_disponible,
                 comentario='Actualización de nombre'
             )
         elif old_product.categoria != instance.categoria:
             MovimientoStock.objects.create(
                 producto=instance,
                 tipo_movimiento='modificacion',
-                cantidad=instance.cantidad_disponible,
+                cantidad_disponible=instance.cantidad_disponible,
                 comentario='Actualización de categoria'
             )
         elif old_product.eliminado != instance.eliminado:
             MovimientoStock.objects.create(
                 producto=instance,
                 tipo_movimiento='eliminacion',
-                cantidad=instance.cantidad_disponible,
+                cantidad_disponible=instance.cantidad_disponible,
                 comentario='Eliminación de producto'
             )
         else:
