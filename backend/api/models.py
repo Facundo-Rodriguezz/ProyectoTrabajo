@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
 
 
 class Product(models.Model):
@@ -35,20 +37,59 @@ class MovimientoStock(models.Model):
     def __str__(self):
         return f"{self.tipo_movimiento} - {self.producto.nombre} - {self.cantidad_disponible}"
 
-    def save(self, *args, **kwargs):
-        # Lógica para actualizar el stock del producto
-        if self.tipo_movimiento == 'entrada':
-            self.producto.cantidad_disponible += self.cantidad_disponible
-        elif self.tipo_movimiento == 'salida':
-            if self.producto.cantidad_disponible >= self.cantidad_disponible:
-                self.producto.cantidad_disponible -= self.cantidad_disponible
-            else:
-                raise ValueError("No hay suficiente stock para esta salida.")
-        
-        # Alerta de stock bajo
-        if self.producto.cantidad_disponible < 10:  # Umbral de alerta (por ejemplo, 10 unidades)
-            # Lógica para enviar notificación (correo, SMS, etc.)
-            print(f"Alerta: El stock de {self.producto.nombre} es bajo.")  # Aquí puedes implementar una notificación real
-        
-        self.producto.save()  # Guardar la nueva cantidad_disponible en el producto
-        super().save(*args, **kwargs)
+
+# Signals
+@receiver(post_save, sender=Product)
+def product_post_save(sender, instance, **kwargs):
+    # Crear un movimiento de stock de tipo 'entrada' cuando se crea un nuevo producto
+    if kwargs['created']:
+        MovimientoStock.objects.create(
+            producto=instance,
+            tipo_movimiento='entrada',
+            cantidad_disponible=instance.cantidad_disponible,
+            comentario='Creación de nuevo producto'
+        )
+
+
+@receiver(pre_save, sender=Product)
+def product_pre_save(sender, instance, **kwargs):
+    # Crear un movimiento de stock de tipo 'entrada' cuando se actualiza la cantidad disponible de un producto
+    if instance.pk:
+        old_product = Product.objects.get(pk=instance.pk)
+        if old_product.cantidad_disponible != instance.cantidad_disponible:
+            MovimientoStock.objects.create(
+                producto=instance,
+                tipo_movimiento='modificacion',
+                cantidad_disponible=instance.cantidad_disponible - old_product.cantidad_disponible,
+                comentario='Actualización de cantidad disponible'
+            )
+        elif old_product.precio != instance.precio:
+            MovimientoStock.objects.create(
+                producto=instance,
+                tipo_movimiento='modificacion',
+                cantidad_disponible=instance.cantidad_disponible,
+                comentario='Actualización de precio'
+            )
+        elif old_product.nombre != instance.nombre:
+            MovimientoStock.objects.create(
+                producto=instance,
+                tipo_movimiento='modificacion',
+                cantidad_disponible=instance.cantidad_disponible,
+                comentario='Actualización de nombre'
+            )
+        elif old_product.categoria != instance.categoria:
+            MovimientoStock.objects.create(
+                producto=instance,
+                tipo_movimiento='modificacion',
+                cantidad_disponible=instance.cantidad_disponible,
+                comentario='Actualización de categoria'
+            )
+        elif old_product.eliminado != instance.eliminado:
+            MovimientoStock.objects.create(
+                producto=instance,
+                tipo_movimiento='eliminacion',
+                cantidad_disponible=instance.cantidad_disponible,
+                comentario='Eliminación de producto'
+            )
+        else:
+            pass
