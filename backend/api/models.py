@@ -2,13 +2,20 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
+class ProductManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(eliminado=False)
+
 
 class Product(models.Model):
     nombre = models.CharField(max_length=100)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     cantidad_disponible = models.IntegerField()
+    eliminado = models.BooleanField(default=False)
     codigo = models.CharField(max_length=100)
     categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE, related_name='productos', default=1)
+    objects = ProductManager()
+    all_objects = models.Manager()
 
     def __str__(self):
         return str(self.nombre, self.cantidad_disponible)
@@ -29,7 +36,7 @@ class MovimientoStock(models.Model):
 
     producto = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="movimientos")
     tipo_movimiento = models.CharField(max_length=10, choices=TIPO_MOVIMIENTO_CHOICES)
-    cantidad_disponible = models.PositiveIntegerField()
+    cantidad_disponible = models.IntegerField()
     fecha = models.DateTimeField(auto_now_add=True)  # Fecha del movimiento
     comentario = models.TextField(blank=True, null=True)  # Por qué se hizo el movimiento (opcional)
     #pylint: disable=no-member
